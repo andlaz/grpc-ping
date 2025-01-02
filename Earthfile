@@ -41,6 +41,7 @@ build:
         BUILD +checks
     END
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/grpc-ping /grpc-ping
+    SAVE ARTIFACT version /version
 
 image:
     FROM gcr.io/distroless/static
@@ -50,7 +51,17 @@ image:
 
     ARG save_cmd="SAVE_IMAGE"
     ARG name="grpc-ping"
+    ARG version
+    ARG tag=$version
     DO .+${save_cmd} --image_name=$name --tag=$tag
+
+versioned:
+    FROM debian:buster
+    COPY (+version/version) /version
+
+    ARG --required next_cmd
+    ARG version="$(cat /version)"
+    BUILD .+${next_target} --version=$version
 
 chart:
     FROM debian:buster
