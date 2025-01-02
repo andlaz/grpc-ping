@@ -1,7 +1,7 @@
+use crate::ping::ping_service_server::{PingService, PingServiceServer};
 use clap::Parser;
 use clap_derive::Parser;
 use tonic::transport::{Identity, Server, ServerTlsConfig};
-use crate::ping::ping_service_server::{PingService, PingServiceServer};
 
 mod ping {
     tonic::include_proto!("ping");
@@ -25,21 +25,12 @@ pub(crate) mod cli {
                 default_value = "0.0.0.0:8080"
             )]
             listen: String,
-            #[clap(
-                long("tls-key"),
-                num_args(1),
-                help("Location of the TLS private key"),
-            )]
+            #[clap(long("tls-key"), num_args(1), help("Location of the TLS private key"))]
             tls_key: Option<std::path::PathBuf>,
-            #[clap(
-                long("tls-cert"),
-                num_args(1),
-                help("Location of the TLS certificate"),
-            )]
+            #[clap(long("tls-cert"), num_args(1), help("Location of the TLS certificate"))]
             tls_cert: Option<std::path::PathBuf>,
-        }
+        },
     }
-
 }
 
 #[derive(Parser)]
@@ -50,12 +41,11 @@ pub(crate) mod cli {
 )]
 struct Cli {
     #[clap(subcommand)]
-    pub command: cli::Commands
+    pub command: cli::Commands,
 }
 
-
 #[derive(Default)]
-struct Ping{}
+struct Ping {}
 
 #[tonic::async_trait]
 impl PingService for Ping {
@@ -70,13 +60,17 @@ impl PingService for Ping {
 
 #[tokio::main]
 async fn main() -> Result<(), String> {
-
     let cli = Cli::parse();
 
     match &cli.command {
-        cli::Commands::Serve { listen, tls_key, tls_cert } => {
-
-            let addr = listen.parse().map_err(|e| format!("Failed to parse listen address: {:?}", e))?;
+        cli::Commands::Serve {
+            listen,
+            tls_key,
+            tls_cert,
+        } => {
+            let addr = listen
+                .parse()
+                .map_err(|e| format!("Failed to parse listen address: {:?}", e))?;
 
             let reflection = tonic_reflection::server::Builder::configure()
                 .register_encoded_file_descriptor_set(ping::FILE_DESCRIPTOR_SET)
@@ -86,39 +80,43 @@ async fn main() -> Result<(), String> {
             match (tls_key, tls_cert) {
                 // TLS
                 (Some(tls_key), Some(tls_cert)) => {
-
                     rustls::crypto::aws_lc_rs::default_provider()
                         .install_default()
-                        .map_err(|e| format!("Failed to install aws_lc_rs as default provider: {:?}", e))?;
+                        .map_err(|e| {
+                            format!("Failed to install aws_lc_rs as default provider: {:?}", e)
+                        })?;
 
-                    let tls_key = std::fs::read_to_string(tls_key).map_err(|e| format!("Failed to read TLS key: {:?}", e))?;
-                    let tls_cert = std::fs::read_to_string(tls_cert).map_err(|e| format!("Failed to read TLS cert: {:?}", e))?;
+                    let tls_key = std::fs::read_to_string(tls_key)
+                        .map_err(|e| format!("Failed to read TLS key: {:?}", e))?;
+                    let tls_cert = std::fs::read_to_string(tls_cert)
+                        .map_err(|e| format!("Failed to read TLS cert: {:?}", e))?;
 
-                    Server::builder().tls_config(ServerTlsConfig::new().identity(Identity::from_pem(tls_cert, tls_key))).map_err(|e| format!("Failed to create TLS config: {:?}", e))?
+                    Server::builder()
+                        .tls_config(
+                            ServerTlsConfig::new().identity(Identity::from_pem(tls_cert, tls_key)),
+                        )
+                        .map_err(|e| format!("Failed to create TLS config: {:?}", e))?
                         .add_service(reflection)
-                        .add_service(PingServiceServer::new(Ping{}))
-                        .serve(addr).await.map_err(|e| format!("Failed to serve: {:?}", e))?;
-
+                        .add_service(PingServiceServer::new(Ping {}))
+                        .serve(addr)
+                        .await
+                        .map_err(|e| format!("Failed to serve: {:?}", e))?;
 
                     Ok(())
-
                 }
                 // non-TLS
                 (None, None) => {
-
                     Server::builder()
                         .add_service(reflection)
-                        .add_service(PingServiceServer::new(Ping{}))
-                        .serve(addr).await.map_err(|e| format!("Failed to serve: {:?}", e))?;
+                        .add_service(PingServiceServer::new(Ping {}))
+                        .serve(addr)
+                        .await
+                        .map_err(|e| format!("Failed to serve: {:?}", e))?;
 
                     Ok(())
                 }
-                _ => Err("TLS cert & key must either both be provided or omitted".to_string())
+                _ => Err("TLS cert & key must either both be provided or omitted".to_string()),
             }
-
         }
     }
-
-
-
 }
