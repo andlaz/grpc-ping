@@ -1,0 +1,4 @@
+apiVersion: v1
+name: grpc-ping-grpc-route
+version: 0.0.0
+appVersion: 0.0.0

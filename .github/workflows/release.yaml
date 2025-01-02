@@ -1,0 +1,108 @@
+name: Release Artifacts
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+
+  package_container:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: Fetch branch refs
+        run: |
+          if [ -n "${{ github.event.number }}" ]; then
+            for ref in `git branch -r | grep origin | grep -v HEAD | grep -v 'pull/'`; do \
+              git branch --track ${ref#origin/} $ref; \
+            done && \
+            git fetch --all          
+          fi
+
+      - name: Install Earthly
+        run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/download/v0.7.4/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
+
+      - name: Log in to ghcr.io
+        run: docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract branch name
+        shell: bash
+        run: echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_ENV
+
+      - name: Determine version
+        shell: bash
+        run: |
+          earthly --artifact +version/version version && \
+          echo "version=$(cat version)" >> $GITHUB_ENV
+
+      - name: Determine tags
+        shell: bash
+        run: |
+          if [[ "${{ env.branch }}" == "main" ]];
+          then
+            echo "tags=${{ env.version }},latest" >> $GITHUB_ENV
+          else
+            echo "tags=${{ env.version }}" >> $GITHUB_ENV
+          fi
+
+      - name: Build and push image
+        shell: bash
+        run: |
+          for tag in $(echo ${{ env.tags }} | tr "," " "); do
+            earthly --ci --push +image --save_cmd=SAVE_IMAGE_GHCR --tag=$tag
+          done
+
+  package_charts:
+    needs: package_container
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: Fetch branch refs
+        run: |
+          if [ -n "${{ github.event.number }}" ]; then
+            for ref in `git branch -r | grep origin | grep -v HEAD | grep -v 'pull/'`; do \
+              git branch --track ${ref#origin/} $ref; \
+            done && \
+            git fetch --all          
+          fi
+
+      - name: Install Earthly
+        run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/download/v0.7.4/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
+
+      - name: Build charts
+        run: |
+          mkdir -p .cr-release-packages &&
+          earthly --artifact +chart/*.tgz --chart grpc-ping .cr-release-packages/ &&
+          earthly --artifact +chart/*.tgz --chart grpc-ping-cert .cr-release-packages/ &&
+          earthly --artifact +chart/*.tgz --chart grpc-ping-grpc-route .cr-release-packages/
+
+      - name: Run chart-releaser
+        uses: helm/chart-releaser-action@v1.6.0
+        with:
+          skip_packaging: true
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
