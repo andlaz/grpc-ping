@@ -9,7 +9,7 @@ A clap CLI app that produces a small, statically linked binary and a root-less c
 
 First, add this repo as a helm repo for access to its charts
 ```bash
-helm repo add grpc-ping https://raw.githubusercontent.com/andlaz/grpc-ping/master/charts
+helm repo add grpc-ping https://oss.andlaz.io/grpc-ping
 ```
 
 ### Request certificate
@@ -27,7 +27,7 @@ helm repo install grpc-canary-cert grpc-ping/grpc-ping-cert \
 ### Start service
 
 ```bash
-helm repo install grpc-canary grpc-ping/grpc-ping \
+helm install grpc-canary grpc-ping/grpc-ping \
   --set tls.secretName=grpc-canary-tls
 ```
 
@@ -41,7 +41,7 @@ A contemporary one perhaps is the `gateway.networking.k8s.io/v1` API and we prov
 to manage a `GRPCRoute` resource
 
 ```bash
-helm repo install test-route grpc-ping/grpc-ping-grpc-route \
+helm install test-route grpc-ping/grpc-ping-grpc-route \
   --set parent=someGateway,hostname=ingress-test.example.com
 ```
 
