@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: grpc-ping
-        image: nginx:1.14.2
+        image: {{ .Values.image.registry }}/{{ .Values.image.name }}:{{ .Values.image.tag | default .Release.AppVersion }}
         ports:
           - containerPort: 8080
             name: grpc
