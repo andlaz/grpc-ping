@@ -16,6 +16,8 @@ RUST_BUILD_ENV:
     WORKDIR /work
 
     COPY --dir src .
+    COPY --dir proto .
+    COPY build.rs .
     COPY Cargo.toml .
     COPY Cargo.lock .
 
