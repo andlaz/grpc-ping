@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: grpc-ping
-        image: {{ .Values.image.registry }}/{{ .Values.image.name }}:{{ .Values.image.tag | default .Release.AppVersion }}
+        image: {{ .Values.image.registry }}/{{ .Values.image.name }}:{{ .Values.image.tag | default .Chart.AppVersion }}
         ports:
           - containerPort: 8080
             name: grpc
