@@ -1,4 +1,0 @@
-apiVersion: v1
-name: grpc-ping
-version: 0.0.0
-appVersion: 0.0.0

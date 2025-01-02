@@ -1,7 +1,0 @@
-image:
-  registry: ghcr.io/andlaz
-  name: grpc-ping
-  tag: # when not set, .Release.AppVersion
-  pullPolicy: Always
-tls:
-  secretName: # use this to enable TLS
