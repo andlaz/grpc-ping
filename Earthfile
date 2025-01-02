@@ -1,10 +1,13 @@
 VERSION 0.7
 
-CHART_BUILD_ENV:
+BUILD_DEPS:
     COMMAND
     RUN apt-get update && \
-        apt-get install -y bash curl && \
+        apt-get remove -y jq && \
+        apt-get install -y bash curl libssl-dev python3-pip && pip3 install yq==2.13.0 && \
+        curl -L -o /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && chmod +x /usr/bin/jq && \
         curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+    RUN jq --version && pip3 show yq
 
 RUST_BUILD_ENV:
     COMMAND
@@ -50,7 +53,7 @@ image:
 chart:
     FROM debian:buster
 
-    DO +CHART_BUILD_ENV
+    DO +BUILD_DEPS
 
     WORKDIR /work
     COPY --dir charts /work/
