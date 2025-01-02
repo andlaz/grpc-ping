@@ -2,6 +2,14 @@ apiVersion: v1
 entries:
   grpc-ping:
   - apiVersion: v1
+    appVersion: 0.1.3
+    created: "2025-01-02T21:00:39.51956226Z"
+    digest: 01af3de0c4328bb77d7639ca5ad6d47c8b9d4de5d8479d586ecf94e54fce753a
+    name: grpc-ping
+    urls:
+    - https://github.com/andlaz/grpc-ping/releases/download/grpc-ping-0.1.3/grpc-ping-0.1.3.tgz
+    version: 0.1.3
+  - apiVersion: v1
     appVersion: 0.1.2
     created: "2025-01-02T20:38:49.224993611Z"
     digest: 47b4c176eebd6468991309517799e6196fa076776cf4aa4b7a75e3dcce09d948
@@ -26,6 +34,14 @@ entries:
     - https://github.com/andlaz/grpc-ping/releases/download/grpc-ping-0.1.0/grpc-ping-0.1.0.tgz
     version: 0.1.0
   grpc-ping-cert:
+  - apiVersion: v1
+    appVersion: 0.1.3
+    created: "2025-01-02T21:00:39.722326546Z"
+    digest: bbbb9fc55c7b7ff5a1b28401c67ad56c3430738a5cfb6bd9f2da520b87003f67
+    name: grpc-ping-cert
+    urls:
+    - https://github.com/andlaz/grpc-ping/releases/download/grpc-ping-cert-0.1.3/grpc-ping-cert-0.1.3.tgz
+    version: 0.1.3
   - apiVersion: v1
     appVersion: 0.1.2
     created: "2025-01-02T20:38:49.405460696Z"
@@ -52,6 +68,14 @@ entries:
     version: 0.1.0
   grpc-ping-grpc-route:
   - apiVersion: v1
+    appVersion: 0.1.3
+    created: "2025-01-02T21:00:39.899598538Z"
+    digest: 4f8c0f5a2ed832a4284063e581115de870c5ec59de8dc6b75dddc1d36ac799b0
+    name: grpc-ping-grpc-route
+    urls:
+    - https://github.com/andlaz/grpc-ping/releases/download/grpc-ping-grpc-route-0.1.3/grpc-ping-grpc-route-0.1.3.tgz
+    version: 0.1.3
+  - apiVersion: v1
     appVersion: 0.1.2
     created: "2025-01-02T20:38:49.571989996Z"
     digest: 21940e649dbb392e63fb9b09625438ee60c4a79a38475c9e8b43855ad6e72e49
@@ -75,4 +99,4 @@ entries:
     urls:
     - https://github.com/andlaz/grpc-ping/releases/download/grpc-ping-grpc-route-0.1.0/grpc-ping-grpc-route-0.1.0.tgz
     version: 0.1.0
-generated: "2025-01-02T20:38:49.572022056Z"
+generated: "2025-01-02T21:00:39.899653811Z"
